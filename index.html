@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="page_title">Portfólio de Desenvolvimento de Jogos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Estilos globais para a paleta de cores vermelha e preta */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #131313; /* Fundo muito escuro, quase preto */
+            color: #e0e0e0; /* Texto cinzento claro para contraste */
+            scroll-behavior: auto !important; /* Mantido para JS controlar */
+            cursor: none !important; /* Esconde o cursor padrão do rato, forçando a regra */
+        }
+        /* Gradiente para títulos e elementos de destaque */
+        .gradient-text {
+            background: linear-gradient(to right, #dc2626, #991b1b); /* Tons de vermelho escuro */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Efeito de hover para cartões de projeto */
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02); /* Mais movimento e ligeira escala */
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.4), 0 6px 10px -3px rgba(0, 0, 0, 0.2); /* Sombra mais pronunciada no hover */
+        }
+
+        /* --- Custom CSS para Parallax, Scroll e Vídeo de Fundo --- */
+        .video-parallax-container {
+            position: relative;
+            overflow: hidden;
+            height: 100vh; /* Ocupa a altura total da viewport */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            /* background-color de fallback caso o vídeo não carregue */
+            background-color: #1a1a1a;
+        }
+
+        /* Estilos para o vídeo de fundo */
+        .video-parallax-container video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: 1; /* Coloca o vídeo atrás do canvas de partículas */
+            transform: translate(-50%, -50%); /* Centraliza o vídeo */
+            background-size: cover; /* Garante que o vídeo cubra a área */
+            background-position: center; /* Centraliza o vídeo */
+            /* Este é o equivalente ao background-attachment: fixed para vídeos */
+            /* Embora o vídeo em si não seja 'fixed' no CSS, o container controla o efeito */
+        }
+        /* --- Fim do Custom CSS --- */
+
+        /* Estilos para as abas de habilidades */
+        .tab-button { /* Adicionado estilo para borda preta */
+            border: 1px solid black;
+            transition: background-color 0.3s, color 0.3s, transform 0.2s;
+        }
+        .tab-button:hover {
+            transform: translateY(-3px);
+        }
+        .tab-button.active {
+            background-color: #dc2626; /* Cor de fundo para a aba ativa */
+            color: white;
+            border-bottom: 2px solid #991b1b; /* Borda inferior para destaque */
+        }
+        /* Animação para o conteúdo das abas */
+        .tab-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        .tab-content.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+
+        /* Estilos para o modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Acima de todo o conteúdo */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: #222222;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+            color: #e0e0e0;
+            transform: scale(0.9);
+            transition: transform 0.3s ease-out;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #dc2626;
+            color: white;
+            border: 2px solid black; /* Borda preta */
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .modal-close-button:hover {
+            background-color: #991b1b;
+            transform: scale(1.1);
+        }
+
+        .modal-iframe-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .modal-iframe-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Custom Scrollbar Styles for Webkit browsers (Chrome, Safari, Edge) */
+        /* Vertical Scrollbar for the entire body */
+        body::-webkit-scrollbar {
+            width: 12px; /* Largura da barra de scroll vertical */
+            height: 12px; /* Altura da barra de scroll horizontal */
+        }
+
+        body::-webkit-scrollbar-track {
+            background: transparent; /* Fundo transparente */
+        }
+
+        body::-webkit-scrollbar-thumb {
+            background-color: #dc2626; /* Cor vermelha para a barra */
+            border-radius: 6px; /* Bordas arredondadas */
+            border: 3px solid #131313; /* Borda para separar do fundo */
+        }
+
+        body::-webkit-scrollbar-thumb:hover {
+            background-color: #991b1b; /* Cor mais escura no hover */
+        }
+
+        /* Horizontal Scrollbar for the projects container */
+        #projectsScrollContainer::-webkit-scrollbar {
+            width: 12px; /* Largura da barra de scroll vertical (não visível aqui) */
+            height: 12px; /* Altura da barra de scroll horizontal */
+        }
+
+        #projectsScrollContainer::-webkit-scrollbar-track {
+            background: transparent; /* Fundo transparente */
+        }
+
+        #projectsScrollContainer::-webkit-scrollbar-thumb {
+            background-color: #dc2626; /* Cor vermelha para a barra */
+            border-radius: 6px; /* Bordas arredondadas */
+            border: 3px solid #1a1a1a; /* Borda para separar do fundo da seção */
+        }
+
+        #projectsScrollContainer::-webkit-scrollbar-thumb:hover {
+            background-color: #991b1b; /* Cor mais escura no hover */
+        }
+
+        /* Custom Cursor Styles */
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 16px; /* Tamanho inicial diminuído */
+            height: 16px; /* Tamanho inicial diminuído */
+            border: 2px solid #888; /* Borda cinza */
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0); /* Fundo transparente */
+            pointer-events: none; /* Garante que o cursor não bloqueie cliques */
+            transform: translate(-50%, -50%); /* Centraliza o cursor no ponto do rato */
+            transition: background-color 0.2s ease-out, border-color 0.2s ease-out, transform 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out, opacity 0.2s ease-out; /* Adicionado opacity para transição suave */
+            z-index: 9999; /* Garante que esteja sempre por cima */
+            opacity: 1; /* Adicionado para garantir que o cursor é visível por padrão */
+        }
+
+        .custom-cursor.active {
+            background-color: #dc2626; /* Fundo vermelho */
+            border-color: black; /* Borda preta quando ativo */
+            transform: translate(-50%, -50%) scale(1.2); /* Aumenta ligeiramente no hover */
+            width: 24px; /* Tamanho ativo diminuído */
+            height: 24px; /* Tamanho ativo diminuído */
+        }
+
+        .custom-cursor.hidden-on-interaction {
+            opacity: 0 !important; /* Força a opacidade a 0 */
+        }
+
+        /* Forçar cursor: none para elementos interativos quando o custom-cursor está ativo */
+        .custom-cursor-enabled a,
+        .custom-cursor-enabled button,
+        .custom-cursor-enabled input:not([type="hidden"]),
+        .custom-cursor-enabled select,
+        .custom-cursor-enabled textarea,
+        .custom-cursor-enabled .project-card,
+        .custom-cursor-enabled .tab-button {
+            cursor: none !important;
+        }
+
+        /* Estilos para mensagens de erro/sucesso do formulário */
+        .form-message {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.25rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        .form-message.success {
+            background-color: #10B981; /* green-500 */
+            color: white;
+        }
+        .form-message.error {
+            background-color: #EF4444; /* red-500 */
+            color: white;
+        }
+        /* Three.js Canvas */
+        #particleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Abaixo do conteúdo principal, acima do vídeo */
+        }
+        /* Animação de pulsação para o botão principal */
+        @keyframes pulse-once {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .animate-pulse-once {
+            animation: pulse-once 1s ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased custom-cursor-enabled">
+    <header class="bg-[#0a0a0a] shadow-lg py-4" role="banner">
+        <nav class="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center" role="navigation" aria-label="Navegação Principal">
+            <a href="#home" class="text-2xl font-bold gradient-text rounded-md p-2 mb-4 sm:mb-0" data-i18n="site_title">Seu Nome</a>
+            <ul class="flex space-x-4 sm:space-x-6 flex-wrap justify-center" role="menu">
+                <li role="none"><a href="#home" class="text-gray-300 hover:text-white transition duration-300 rounded-md p-2" data-i18n="home_nav" role="menuitem">Início</a></li>
+                <li role="none"><a href="#portfolio" class="text-gray-300 hover:text-white transition duration-300 rounded-md p-2" id="portfolioNavLink" data-i18n="portfolio_nav" role="menuitem">Portfólio</a></li>
+                <li role="none"><a href="#skills" class="text-gray-300 hover:text-white transition duration-300 rounded-md p-2" data-i18n="skills_nav" role="menuitem">Habilidades</a></li>
+                <li role="none"><a href="#contact" class="text-gray-300 hover:text-white transition duration-300 rounded-md p-2" data-i18n="contact_nav" role="menuitem">Contacto</a></li>
+                <li role="none"><a href="#about" class="text-gray-300 hover:text-white transition duration-300 rounded-md p-2" data-i18n="about_nav" role="menuitem">Sobre</a></li>
+            </ul>
+            <div class="mt-4 sm:mt-0">
+                <label for="language-select" class="sr-only" data-i18n="select_language_label">Selecionar Idioma</label>
+                <select id="language-select" class="p-2 rounded-md bg-[#333333] text-white border border-[#444444] focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Selecionar Idioma">
+                    <option value="pt">Português</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main">
+        <section id="home" class="video-parallax-container" role="region" aria-labelledby="hero-title">
+            <video autoplay loop muted playsinline>
+                <source src="background.mp4" type="video/mp4">
+                <source src="background2.mp4" type="video/mp4">
+                O seu navegador não suporta a tag de vídeo. </video>
+            <canvas id="particleCanvas" class="absolute inset-0 z-5"></canvas>
+            <div class="absolute inset-0 bg-black opacity-70 rounded-md z-10"></div>
+            <div class="relative z-20 p-8 max-w-4xl mx-auto">
+                <h1 id="hero-title" class="text-5xl md:text-7xl font-extrabold leading-tight text-white mb-4" data-i18n="hero_title">
+                    Criando Mundos, Uma Linha de Código de Cada Vez
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-300 mb-8" data-i18n="hero_subtitle">
+                    Desenvolvedor de jogos apaixonado por criar experiências imersivas e inovadoras.
+                </p>
+                <a href="#portfolio" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg border border-black animate-pulse-once" data-i18n="view_games_btn">
+                    Ver Meus Jogos
+                </a>
+            </div>
+        </section>
+
+        <section id="skills" class="py-16 bg-[#1a1a1a]" role="region" aria-labelledby="skills-title">
+            <div class="container mx-auto px-4 text-center">
+                <h2 id="skills-title" class="text-4xl font-bold mb-8 gradient-text" data-i18n="skills_section_title">Minhas Habilidades</h2>
+                <div class="max-w-4xl mx-auto bg-[#222222] p-8 rounded-lg shadow-lg">
+                    <div class="flex justify-center space-x-4 mb-8 flex-wrap">
+                        <button class="tab-button p-4 rounded-md text-gray-300 hover:text-white hover:bg-[#333333] transition duration-300 active" data-tab="unreal" data-i18n="unreal_tab_button">
+                            <img src="https://placehold.co/40x40/2a2a2a/e0e0e0?text=UE" alt="Unreal Engine Logo" class="h-10 w-10 mx-auto mb-2">
+                            Unreal Engine
+                        </button>
+                        <button class="tab-button p-4 rounded-md text-gray-300 hover:text-white hover:bg-[#333333] transition duration-300" data-tab="unity" data-i18n="unity_tab_button">
+                            <img src="https://placehold.co/40x40/2a2a2a/e0e0e0?text=Unity" alt="Unity Logo" class="h-10 w-10 mx-auto mb-2">
+                            Unity
+                        </button>
+                        <button class="tab-button p-4 rounded-md text-gray-300 hover:text-white hover:bg-[#333333] transition duration-300" data-tab="godot" data-i18n="godot_tab_button">
+                            <img src="https://placehold.co/40x40/2a2a2a/e0e0e0?text=Godot" alt="Godot Engine Logo" class="h-10 w-10 mx-auto mb-2">
+                            Godot Engine
+                        </button>
+                        <button class="tab-button p-4 rounded-md text-gray-300 hover:text-white hover:bg-[#333333] transition duration-300" data-tab="python" data-i18n="python_tab_button">
+                            <i class="fab fa-python text-4xl mx-auto mb-2"></i>
+                            Python
+                        </button>
+                        <button class="tab-button p-4 rounded-md text-gray-300 hover:text-white hover:bg-[#333333] transition duration-300" data-tab="scratch" data-i18n="scratch_tab_button">
+                            <img src="https://placehold.co/40x40/2a2a2a/e0e0e0?text=Scratch" alt="Scratch Logo" class="h-10 w-10 mx-auto mb-2">
+                            Scratch
+                        </button>
+                    </div>
+
+                    <div id="tab-content-unreal" class="tab-content text-lg text-gray-300 leading-relaxed active">
+                        <h3 class="text-2xl font-semibold text-white mb-4" data-i18n="unreal_title">Unreal Engine</h3>
+                        <p data-i18n="unreal_description">Proficiência avançada no desenvolvimento de jogos em 3D e simulações interativas. Experiência com Blueprints e C++ para lógica de jogo complexa e otimização de performance.</p>
+                    </div>
+                    <div id="tab-content-unity" class="tab-content text-lg text-gray-300 leading-relaxed hidden">
+                        <h3 class="text-2xl font-semibold text-white mb-4" data-i18n="unity_title">Unity</h3>
+                        <p data-i18n="unity_description">Ampla experiência na criação de jogos 2D e 3D, realidade aumentada (AR) e realidade virtual (VR) usando C#. Forte conhecimento em otimização, shaders e ferramentas de editor.</p>
+                    </div>
+                    <div id="tab-content-godot" class="tab-content text-lg text-gray-300 leading-relaxed hidden">
+                        <h3 class="text-2xl font-semibold text-white mb-4" data-i18n="godot_title">Godot Engine</h3>
+                        <p data-i18n="godot_description">Habilidade em desenvolver jogos multiplataforma com GDScript, focando em prototipagem rápida e jogos indie. Experiência com sistemas de partículas e animações.</p>
+                    </div>
+                    <div id="tab-content-python" class="tab-content text-lg text-gray-300 leading-relaxed hidden">
+                        <h3 class="text-2xl font-semibold text-white mb-4" data-i18n="python_title">Python</h3>
+                        <p data-i18n="python_description">Conhecimento sólido em Python para scripts de automação, desenvolvimento de ferramentas para jogos e prototipagem de sistemas de backend. Experiência com bibliotecas como Pygame.</p>
+                    </div>
+                    <div id="tab-content-scratch" class="tab-content text-lg text-gray-300 leading-relaxed hidden">
+                        <h3 class="text-2xl font-semibold text-white mb-4" data-i18n="scratch_title">Scratch</h3>
+                        <p data-i18n="scratch_description">Experiência em ensino e criação de projetos educacionais para introdução à lógica de programação e desenvolvimento de jogos para iniciantes.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="portfolio" class="py-16 bg-[#1a1a1a]" role="region" aria-labelledby="portfolio-title">
+            <div class="container mx-auto px-4">
+                <h2 id="portfolio-title" class="text-4xl font-bold text-center mb-12 gradient-text" data-i18n="projects_title">Meus Projetos</h2>
+                <div id="projectsScrollContainer" class="flex overflow-x-auto space-x-8 pb-4">
+                    <div class="project-card flex-none w-80 bg-[#222222] rounded-lg shadow-lg overflow-hidden card-hover transition duration-300 cursor-pointer"
+                         data-video-src="https://scratch.mit.edu/projects/1019266492/embed"
+                         data-project-title-i18n="car_game_title"
+                         data-project-description-i18n="car_game_description"
+                         data-project-link="https://scratch.mit.edu/projects/1019266492/">
+                        <div class="relative w-full h-48 bg-black flex items-center justify-center">
+                            <iframe class="w-full h-full pointer-events-none" src="https://scratch.mit.edu/projects/1019266492/embed" allowtransparency="true" fra
